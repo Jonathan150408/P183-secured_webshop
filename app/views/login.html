@@ -13,14 +13,16 @@
       <section class="hero">
         <div class="container">
           <h1>Connexion</h1>
-          <!-- <form id="login_form" action="/api/auth/login" method="post"> -->
+          <!-- novalidate permet de ne pas valider le form -->
           <form id="login_form" novalidate>
+            <!-- email -->
             <label for="email">E-mail</label>
             <input type="text" id="email" value="" />
+            <!-- mot de passe -->
             <label for="pwd">Mot de passe</label>
             <input type="text" id="pwd" value="" />
+            <!-- submit -->
             <input type="submit" id="submit_btn" onclick="sendData" />
-            <!-- value="submit" name="Valider" title="submit" -->
           </form>
         </div>
       </section>
@@ -34,6 +36,7 @@
 
     <script src="/js/nav.js"></script>
     <script>
+      // quand submit -> appelle sendData()
       document
         .getElementById("login_form")
         .addEventListener("submit", sendData);
@@ -42,16 +45,14 @@
         event.preventDefault(); //empêche de submit
         const email = document.getElementById("email").value;
         const password = document.getElementById("pwd").value;
-
+        // envoie le requête
         fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         })
-          .then(() => {
-            window.location.href = "/";
-            console.log(JSON.stringify({ email, password }));
-          })
+          .then((window.location.href = "/")) // ramène sur accueil
+          // PEUT ETRE CHANGER CA
           .catch((e) => {
             console.log(e);
           });
