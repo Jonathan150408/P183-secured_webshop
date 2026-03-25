@@ -25,13 +25,31 @@ module.exports = {
       }
 
       res.json({ message: "Connexion réussie", user: results[0] });
+      window.location.href = "/"; // ramène sur accueil
     });
   },
 
   // ----------------------------------------------------------
   // POST /api/auth/register
   // ----------------------------------------------------------
-  register: (_req, res) => {
-    res.status(501).json({ error: "Non implémenté — TODO exercice 7" });
+  register: (req, res) => {
+    const { username, email, password, address, photoPath } = req.body;
+
+    //on s'en fiche que photoPath soit vide pour le moment
+    if (!username || !email || !password || !address) {
+      return res.status(400).json({ error: "Un des champs requis est vide" });
+    }
+
+    //id et role sont fixes -> 3 et user
+    const query = `INSERT INTO users (id, username, email, password, role, address, photo_path) VALUES (3, '${username}', '${email}', '${password}', 'user', '${address}', '${photoPath}');`;
+
+    db.query(query, (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message, query: query });
+      } else {
+        res.status(201).json({ message: "Création réussie", user: results[0] });
+        window.location.href = "/"; // ramène sur accueil
+      }
+    });
   },
 };

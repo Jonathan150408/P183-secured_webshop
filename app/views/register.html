@@ -1,31 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secure Shop - Inscription</title>
-    <link rel="stylesheet" href="/css/main.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/css/main.css" />
+  </head>
+  <body>
     <div id="topbar"></div>
 
     <main>
-        <section class="hero">
-            <div class="container">
-                <h1>Inscription</h1>
+      <section class="hero">
+        <div class="container">
+          <h1>Inscription</h1>
+          <!-- novalidate permet de ne pas valider le form -->
+          <form id="login_form" novalidate>
+            <!-- username -->
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" id="username" value="" />
+            <!-- email -->
+            <label for="email">E-mail</label>
+            <input type="text" id="email" value="" />
+            <!-- mot de passe -->
+            <label for="pwd">Mot de passe</label>
+            <input type="text" id="pwd" value="" />
+            <!-- role -->
+            <!-- laisser sur default, tous les utilisateurs sont simplement 'user' -->
+            <!-- adresse -->
+            <label for="address">Adresse</label>
+            <input type="text" id="address" value="" />
+            <!-- photo -->
+            <label for="picture">Lien vers une photo de profil</label>
+            <input type="text" id="picture" value="" />
 
-                <p>Placer un formulaire d'inscription ici</p>
-
-            </div>
-        </section>
+            <!-- submit -->
+            <input type="submit" id="submit_btn" onclick="sendData" />
+          </form>
+        </div>
+      </section>
     </main>
 
     <footer id="contact" class="footer">
-        <div class="container">
-            <p>Projet pedagogique - ETML 183</p>
-        </div>
+      <div class="container">
+        <p>Projet pedagogique - ETML 183</p>
+      </div>
     </footer>
 
     <script src="/js/nav.js"></script>
-</body>
+
+    <script>
+      // quand submit -> appelle sendData()
+      document
+        .getElementById("login_form")
+        .addEventListener("submit", sendData);
+
+      function sendData(event) {
+        event.preventDefault(); //empêche de submit
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("pwd").value;
+        const address = document.getElementById("address").value;
+        const picture = document.getElementById("picture").value;
+
+        // envoie le requête
+        fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password, address, picture }),
+        })
+          // PEUT ETRE CHANGER CA
+          .catch((e) => {
+            console.log("Erreur sur la page d'inscription");
+            console.log(e);
+          });
+      }
+    </script>
+  </body>
 </html>
