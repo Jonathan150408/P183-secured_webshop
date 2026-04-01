@@ -27,7 +27,7 @@
 > Attention à bien remplacer _password_ par _haspassword_ dans la requête SQL.  
 > Une fois fait, nous recréons tous les comptes utilisateurs afin de stocker les mot de passes hashé.
 
-### 4 Ajouter un sel🟧
+### 4 Ajouter un sel✅
 
 > Lors de cette étape, nous allons générer un sel (une chaine de caractères aléatoire) pour chaque utilisateur et nous allons l'ajouter au hash du mot de passe. En réalité, le selest généré par argon2 automatiquement. Nous n'avons qu'à retirer la partie où l'on spécifie le sel. Notre code de l'étape précédente devient donc
 >
@@ -35,7 +35,7 @@
 > const hashPassword = await argon2.hash(password);
 > ```
 
-### 5 Ajouter un poivre
+### 5 Ajouter un poivre✅
 
 > Nous allons maintenant ajouter le poivre à notre application, dans le fichier _.env_ à la racine du projet, ajoutez `PEPPER=9f3c2a8e7b1d4c6f8a91e2b5c7d9f0a1bd55672d7ecdef0ad6c46739ebcaef0`. Sentez-vous libre de changer la valeur du poivre.  
 > Ensuite nous ajoutons le poivre au mot de passe ainsi (toujours la même partie du code):
@@ -92,7 +92,7 @@
 > },
 > ```
 
-### 6 Prévenir les injections SQL
+### 6 Prévenir les injections SQL✅
 
 > Il est maintenant temps de revoir nos requêtes SQL et de les sécuriser afin de rendre les injections SQL impossibles. Nous n'avons qu'à substituer les valeurs dans la requête par des point d'interrogation. Nous définissions ensuite le contenu des ? lors de l'appel de la méthode `db.query`.  
 > Voici à quoi ça ressemble pour le login :
@@ -103,3 +103,7 @@
 >   //... suite
 > });
 > ```
+
+### 7 Implémenter l'utilisation d'un token jwt🟧
+
+### 8 Ajouter les rôles administrteur et utilisateur dans le jwt et protéger les routes d'administration🟧

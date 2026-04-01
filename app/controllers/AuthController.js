@@ -30,9 +30,6 @@ module.exports = {
           .json({ error: "Email ou mot de passe incorrect" });
       }
 
-      console.log(query);
-      console.log(results);
-
       //sinon on vérifie le hash
       const accessGranted = await argon2.verify(
         results[0].password,
