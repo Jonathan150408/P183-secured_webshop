@@ -15,3 +15,13 @@
 > Enfin nous allons dans _AuthController_ et nous implémentons la création d'un nouvel utiliateur.
 
 ### 3 Remplacer les mots de passes en clair dans la base par un hash 🟧
+
+> Afin de pouvoir démarrer cette étape, nous avons besoin d'installer [Argon2](https://www.npmjs.com/package/argon2). Ceci servira à hasher et vérifier les passwords en db. Voici la commande relative à l'installation : `npm install argon2`. À présent, nous pouvons commencer à coder, nous allons dans _AuthController_ et, dans la méthode register, nous ajoutons le bout de code qui permet de hash le mot de passe :
+>
+> ```js
+> const hashPassword = await argon2.hash(password, {
+>   salt: Buffer.from("saltThatIsLongEnough"), //sel fixe pour le moment
+> });
+> ```
+>
+> Attention à bien remplacer _password_ par _haspassword_ dans la requête SQL.

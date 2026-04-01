@@ -35,9 +35,11 @@ module.exports = {
   // ----------------------------------------------------------
   register: async (req, res) => {
     const { username, email, password, address, photoPath } = req.body;
+
     //hash le pwd
-    const hashPassword = await argon2.hash(password).p;
-    console.log("pwd hash " + hashPassword + " pwd " + password);
+    const hashPassword = await argon2.hash(password, {
+      salt: Buffer.from("saltThatIsLongEnough"), //sel fixe pour le moment
+    });
 
     //on s'en fiche que photoPath soit vide pour le moment
     if (!username || !email || !password || !address) {
@@ -52,7 +54,7 @@ module.exports = {
         return res.status(500).json({ error: err.message, query: query });
       } else {
         res.status(201).json({ message: "Création réussie", user: results[0] });
-        window.location.href = "/"; // ramène sur accueil
+        // window.location.href = "/"; // ramène sur accueil
       }
     });
   },
