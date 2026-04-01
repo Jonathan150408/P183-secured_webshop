@@ -4,5 +4,16 @@
   "branch": "main",
   "me": "Jonathan150408",
   "journalStartDate": "2026-03-18T10:25:00.000Z",
-  "exceptions": []
+  "exceptions": [
+    {
+      "id": "5096daa8-ad00-4e8d-9334-885a8f9f221e",
+      "type": "commitless",
+      "name": "fix(3 - hash des mots de passes) : placer un sel fixe et hasher les mot de passes des utilisateurs",
+      "description": "",
+      "date": "2026-04-01T06:50:00.000Z",
+      "duration": 50,
+      "status": "Done",
+      "author": "Jonathan150408"
+    }
+  ]
 }
