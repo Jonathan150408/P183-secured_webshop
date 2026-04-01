@@ -37,9 +37,7 @@ module.exports = {
     const { username, email, password, address, photoPath } = req.body;
 
     //hash le pwd
-    const hashPassword = await argon2.hash(password, {
-      salt: Buffer.from("saltThatIsLongEnough"), //sel fixe pour le moment
-    });
+    const hashPassword = await argon2.hash(password);
 
     //on s'en fiche que photoPath soit vide pour le moment
     if (!username || !email || !password || !address) {
