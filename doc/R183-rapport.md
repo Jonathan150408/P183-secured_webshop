@@ -91,3 +91,15 @@
 >  });
 > },
 > ```
+
+### 6 Prévenir les injections SQL
+
+> Il est maintenant temps de revoir nos requêtes SQL et de les sécuriser afin de rendre les injections SQL impossibles. Nous n'avons qu'à substituer les valeurs dans la requête par des point d'interrogation. Nous définissions ensuite le contenu des ? lors de l'appel de la méthode `db.query`.  
+> Voici à quoi ça ressemble pour le login :
+>
+> ```js
+> const query = `SELECT password FROM users WHERE email = ? LIMIT 1;`;
+> db.query(query, [email], async (err, results) => {
+>   //... suite
+> });
+> ```

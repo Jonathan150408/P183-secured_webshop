@@ -16,9 +16,9 @@ module.exports = {
     const pepper = process.env.PEPPER;
     let passwordWithPepper = password + pepper;
 
-    const query = `SELECT password FROM users WHERE email = '${email}'`;
+    const query = `SELECT password FROM users WHERE email = ? LIMIT 1;`;
 
-    db.query(query, async (err, results) => {
+    db.query(query, [email], async (err, results) => {
       //si erreur
       if (err) {
         return res.status(500).json({ error: err.message, query: query });
@@ -29,6 +29,10 @@ module.exports = {
           .status(400)
           .json({ error: "Email ou mot de passe incorrect" });
       }
+
+      console.log(query);
+      console.log(results);
+
       //sinon on vérifie le hash
       const accessGranted = await argon2.verify(
         results[0].password,
@@ -61,15 +65,19 @@ module.exports = {
       return res.status(400).json({ error: "Un des champs requis est vide" });
     }
 
-    //id et role sont fixes -> 4 et user
-    const query = `INSERT INTO users (id, username, email, password, role, address, photo_path) VALUES (2, '${username}', '${email}', '${hashPassword}', 'user', '${address}', '${photoPath}');`;
-
-    db.query(query, (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message, query: query });
-      } else {
-        res.status(201).json({ message: "Création réussie", user: results[0] });
-      }
-    });
+    //création d'un user
+    //role est fixe -> user
+    const query = `INSERT INTO users (username, email, password, role, address, photo_path) VALUES (?, ?, ?, 'user', ?, ?);`;
+    db.query(
+      query,
+      [username, email, hashPassword, address, photoPath],
+      (err, results) => {
+        if (err) {
+          res.status(500).json({ message: "Quelque chose s'est mal passé" });
+        } else {
+          res.status(201).json({ message: "Création réussie" });
+        }
+      },
+    );
   },
 };
