@@ -24,6 +24,7 @@
             <!-- mot de passe -->
             <label for="pwd">Mot de passe</label>
             <input type="text" id="pwd" value="" />
+            <div id="password_strength"></div>
             <!-- role -->
             <!-- laisser sur default, tous les utilisateurs sont simplement 'user' -->
             <!-- adresse -->
@@ -53,6 +54,40 @@
       document
         .getElementById("login_form")
         .addEventListener("submit", sendData);
+      document.getElementById("pwd").addEventListener("input", (e) => {
+        // on vérifie que le mot de passe est assez fort
+        const password = e.target.value;
+        const strengthBar = document.getElementById("password_strength");
+        strengthBar.style.height = "10px";
+        strengthBar.style.borderRadius = "5px";
+        strengthBar.style.marginTop = "5px";
+
+        const regexExtra =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])\S{14,}$/;
+        const regexStrong =
+          /^(?!.*(.)\1{2,})(?!.*(?:1234|abcd|qwerty))(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{12,}$/;
+        const regexMedium =
+          /^(?!.*(.)\1{2,})(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        const regexWeak =
+          /^(?:\d{6,}|[a-zA-Z]{6,}|(.)\1{5,}|123456789|abcdefghi)$/;
+
+        if (regexExtra.test(password)) {
+          strengthBar.style.backgroundColor = "green";
+          strengthBar.style.width = "100%";
+        } else if (regexStrong.test(password)) {
+          strengthBar.style.backgroundColor = "lightGreen";
+          strengthBar.style.width = "75%";
+        } else if (regexMedium.test(password)) {
+          strengthBar.style.backgroundColor = "orangeRed";
+          strengthBar.style.width = "50%";
+        } else if (regexWeak.test(password)) {
+          strengthBar.style.backgroundColor = "red";
+          strengthBar.style.width = "25%";
+        } else {
+          strengthBar.style.backgroundColor = "darkred";
+          strengthBar.style.width = "10%";
+        }
+      });
 
       function sendData(event) {
         event.preventDefault(); //empêche de submit

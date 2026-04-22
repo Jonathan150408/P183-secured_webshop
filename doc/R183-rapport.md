@@ -158,7 +158,7 @@
 > Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode ainsi.
 > `app.get("/profile", (_req, res) => ...` -> `app.get("/profile", verifyToken, (_req, res) => ...`
 
-### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration🟧
+### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration✅
 
 > Puisque nous avons déjà placé le rôle utilisateur dans le token, il nous suffit de checker le role utilisateur lors de requêtes vers les routes admin (/admin et /api/admin). Nous créons donc une méthode dans auth.js (du middleware) qui permet de check le rôle que nous utilisions ensuite de la même manière que lea méthode de vérification du token.
 >
@@ -175,5 +175,7 @@
 >   }
 > }
 > ```
+
+### 10 politique de mot de passe
 
 ## Conclusion
