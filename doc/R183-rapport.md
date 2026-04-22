@@ -106,4 +106,58 @@
 
 ### 7 Implémenter l'utilisation d'un token jwt🟧
 
+> À présent, nous allons restreindre l'accès à l'application afin de la rendre plus safe. Nous allons utiliser des JSON Web Tokens. Pour ceci, créez une nouvelle variable d'environnement, puis rendez-vous dans le AuthController, dans la partie login. La variable d'environnement s'appelle JWT_SECRET et contient une suite hexadécimale complexe. Pour en créer une facilement, vous pouvez visiter [ce site](https://jwtsecrets.com/).
+>
+> ```js
+> //créer le token
+> const secret = process.env.JWT_SECRET;
+> const token = jwt.sign(
+>   {
+>     username: username,
+>     email: email,
+>   },
+>   secret,
+> );
+>
+> //message de connexion réussie
+> res.status(200).json({
+>   message: "Connexion réussie",
+>   token: token, //renvoi du token
+> });
+> ```
+>
+> Il nous faut maintenant protéger les routes et pour ceci il nous faut de quoi tester et valider le token. Nous allons utiliser le middleware d'authentification (le fichier /middleware/auth.js). Nous y ajoutons et exportons la méhode `verifyToken`.
+>
+> ```js
+> // =============================================================
+> // Middleware d'authentification
+> // =============================================================
+> const jwt = require("jsonwebtoken");
+>
+> function verifyToken(req, res, next) {
+>   const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
+>
+>   //si token manquant
+>   if (!token) {
+>     return res.status(403).json({ message: "Token manquant" });
+>   }
+>
+>   try {
+>     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+>     req.user = decoded;
+>     next(); //tout est ok, on passe à la suite
+>   } catch (err) {
+>     //si token invalide
+>     return res.status(401).json({ message: "Token invalide" });
+>   }
+> }
+>
+> module.exports = { verifyToken };
+> ```
+>
+> Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode ainsi.
+> `app.get("/profile", (_req, res) => ...` -> `app.get("/profile", verifyToken, (_req, res) => ...`
+
 ### 8 Ajouter les rôles administrteur et utilisateur dans le jwt et protéger les routes d'administration🟧
+
+## Conclusion
