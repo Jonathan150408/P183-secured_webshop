@@ -1,0 +1,25 @@
+meta {
+  name: Register
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ApiUrl}}/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username" : "new_user",
+    "email" : "new_user@gmail.com",
+    "password" : "new_user_pwd",
+    "address" : "qqpart"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
