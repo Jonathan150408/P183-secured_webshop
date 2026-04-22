@@ -51,6 +51,14 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         })
+          .then(async (response) => {
+            if (response.ok) {
+              window.location.href = "/";
+            } else {
+              const error = await response.json();
+              console.error(error);
+            }
+          })
           // PEUT ETRE CHANGER CA
           .catch((e) => {
             console.log(e);
