@@ -21,4 +21,15 @@ function verifyToken(req, res, next) {
   }
 }
 
-module.exports = { verifyToken };
+function verifyAdmin(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ message: "Accès refusé : rôle administrateur requis" });
+  } else if (req.user.role === "admin") {
+    //else if pour être certain que le rôle est bien admin avant de faire
+    next();
+  }
+}
+
+module.exports = { verifyToken, verifyAdmin };

@@ -1,5 +1,5 @@
 require("dotenv").config({ path: "../.env" });
-const { verifyToken } = require("./middleware/auth");
+const { verifyToken, verifyAdmin } = require("./middleware/auth");
 
 const express = require("express");
 const path = require("path");
@@ -22,7 +22,7 @@ const adminRoute = require("./routes/Admin");
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
-app.use("/api/admin", verifyToken, adminRoute);
+app.use("/api/admin", verifyToken, verifyAdmin, adminRoute);
 
 // ---------------------------------------------------------------
 // Routes pages (retournent du HTML)
@@ -45,6 +45,7 @@ app.get("/profile", verifyToken, (_req, res) =>
 app.get(
   "/admin",
   verifyToken,
+  verifyAdmin,
   (
     _req,
     res, //need admin verif
