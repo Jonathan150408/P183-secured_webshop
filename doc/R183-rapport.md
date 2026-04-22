@@ -104,7 +104,7 @@
 > });
 > ```
 
-### 7 Implémenter l'utilisation d'un token jwt🟧
+### 7 Implémenter l'utilisation d'un token jwt✅
 
 > À présent, nous allons restreindre l'accès à l'application afin de la rendre plus safe. Nous allons utiliser des JSON Web Tokens. Pour ceci, créez une nouvelle variable d'environnement, puis rendez-vous dans le AuthController, dans la partie login. La variable d'environnement s'appelle JWT_SECRET et contient une suite hexadécimale complexe. Pour en créer une facilement, vous pouvez visiter [ce site](https://jwtsecrets.com/).
 >
@@ -158,6 +158,22 @@
 > Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode ainsi.
 > `app.get("/profile", (_req, res) => ...` -> `app.get("/profile", verifyToken, (_req, res) => ...`
 
-### 8 Ajouter les rôles administrteur et utilisateur dans le jwt et protéger les routes d'administration🟧
+### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration🟧
+
+> Puisque nous avons déjà placé le rôle utilisateur dans le token, il nous suffit de checker le role utilisateur lors de requêtes vers les routes admin (/admin et /api/admin). Nous créons donc une méthode dans auth.js (du middleware) qui permet de check le rôle que nous utilisions ensuite de la même manière que lea méthode de vérification du token.
+>
+> ```js
+> //permet de check le rôle
+> function verifyAdmin(req, res, next) {
+>   if (req.user.role !== "admin") {
+>     return res
+>       .status(403)
+>       .json({ message: "Accès refusé : rôle administrateur requis" });
+>   } else if (req.user.role === "admin") {
+>     //else if pour être certain que le rôle est bien admin avant de faire
+>     next();
+>   }
+> }
+> ```
 
 ## Conclusion
