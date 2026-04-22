@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const argon2 = require("argon2");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   // ----------------------------------------------------------
@@ -36,8 +37,35 @@ module.exports = {
         passwordWithPepper,
       );
       if (accessGranted) {
-        //mot infos utilisateur ok -> connexion
-        res.status(200).json({ message: "Connexion réussie" });
+        //mot infos utilisateur ok -> connexion et création du token
+        //récupérer les data ustilisateur
+        const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
+        //aidé par l'IA pour la promesse
+        const results = await new Promise((resolve, reject) => {
+          db.query(userInfosQuery, [email], (err, results) => {
+            if (err) reject(err);
+            else resolve(results);
+          });
+        });
+        const username = results[0]?.username;
+        const role = results[0].role;
+
+        //créer le token
+        const secret = process.env.JWT_SECRET;
+        const token = jwt.sign(
+          {
+            username: username,
+            email: email,
+            role: role,
+          },
+          secret,
+        );
+
+        //message de connexion réussie
+        res.status(200).json({
+          message: "Connexion réussie",
+          token: token,
+        });
       } else {
         //mdp faux -> message erreur plus générique
         res.status(400).json({ message: "Email ou mot de passe incorrect" });
@@ -59,7 +87,14 @@ module.exports = {
 
     //on s'en fiche que photoPath soit vide pour le moment
     if (!username || !email || !password || !address) {
-      return res.status(400).json({ error: "Un des champs requis est vide" });
+      return res.status(400).json({
+        error: "Un des champs requis est vide",
+        username: username ? username : "champ vide",
+        email: email ? email : "champ vide",
+        password: password ? password : "champ vide",
+        address: address ? address : "champ vide",
+        photoPath: (photoPath ? photoPath : "champ vide") + " (facultatif)",
+      });
     }
 
     //création d'un user
