@@ -176,6 +176,28 @@
 > }
 > ```
 
+### 9 Implémenter le https
+
+> Il est maintenant temps de passer à la connection https. L'utilisation du protocole de connection https requiet un certificat et une clé privée du côté du serveur. Nous allons utiliser OpenSSl afin de créer tout ça. Pour ce faire, créez un dossier _certs_ dans le dossier _app_ et ouvrez un terminal dedans. Vous pouvez ensuite lancer cette commande qui va créer tout ce dont nous avons besoin. `openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365 -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"`  
+> Étape suivante : gérer le fichier .env : trouvez le fichier .env et ne laissez dedans que `COMPOSE_PROJECT_NAME=webshop_183`. Coupez le reste et collez-le dans un nouveau fichier .env dans le dossier _app_. Si vous avez perdu le contenu de l'ancien .env, vous pouvez renommer le _/app/.env.example_ en .env  
+> À présent nous devons modifier les import des autres ressources dans les fichiers db.js et app.js.
+>
+> ```js
+> //on passe de ça
+> const express = require("express");
+> //à ça ->
+> import express from "express";
+> ```
+>
+> Une fois fait, nous passons le serveur en mode https. Il sera nécessaire d'installer le package https `npm i https`. Nous l'utilisons dans le fichier server.js.
+>
+> ```js
+> // Démarrage du serveur
+> https.createServer(options, app).listen(8080, () => {
+>   console.log("Serveur démarré sur https://localhost:8080");
+> });
+> ```
+
 ### 10 politique de mot de passe
 
 > Nous nous attaquons maintenant à la politique du mot de passe. Le but est d'empêcher les utilisateurs de créer un compte avec un mot de passe trop faible. La politique que j'ai implémenté est : minimum 5 lettres (majuscules ou minuscules) et minimum 2 chiffres. J'ai ainsi utilisé des regexes afin de tester les critères, voici ce qui se passe dans le frontend :
