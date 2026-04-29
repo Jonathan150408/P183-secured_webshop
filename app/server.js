@@ -1,10 +1,19 @@
-require("dotenv").config({ path: "../.env" });
-const { verifyToken, verifyAdmin } = require("./middleware/auth");
+import "dotenv/config.js";
 
-const express = require("express");
-const path = require("path");
+import { verifyToken, verifyAdmin } from "./middleware/auth.js";
+import express from "express";
+import https from "https";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const options = {
+  key: fs.readFileSync(path.join(__dirname, "certs", "key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "certs", "cert.pem")),
+};
 
 // Middleware pour parser le corps des requêtes
 app.use(express.json());
@@ -16,9 +25,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // ---------------------------------------------------------------
 // Routes API (retournent du JSON)
 // ---------------------------------------------------------------
-const authRoute = require("./routes/Auth");
-const profileRoute = require("./routes/Profile");
-const adminRoute = require("./routes/Admin");
+import authRoute from "./routes/Auth.js";
+import profileRoute from "./routes/Profile.js";
+import adminRoute from "./routes/Admin.js";
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
@@ -27,8 +36,8 @@ app.use("/api/admin", verifyToken, verifyAdmin, adminRoute);
 // ---------------------------------------------------------------
 // Routes pages (retournent du HTML)
 // ---------------------------------------------------------------
-const homeRoute = require("./routes/Home");
-const userRoute = require("./routes/User");
+import homeRoute from "./routes/Home.js";
+import userRoute from "./routes/User.js";
 
 app.use("/", homeRoute);
 app.use("/user", userRoute);
@@ -53,6 +62,6 @@ app.get(
 );
 
 // Démarrage du serveur
-app.listen(8080, () => {
-  console.log("Serveur démarré sur http://localhost:8080");
+https.createServer(options, app).listen(8080, () => {
+  console.log("Serveur démarré sur https://localhost:8080");
 });

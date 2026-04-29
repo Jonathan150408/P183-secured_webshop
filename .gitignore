@@ -9,3 +9,4 @@
 /app/public/uploads/*.gif
 /app/public/uploads/*.webp
 .env
+*.pem
