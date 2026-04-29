@@ -14,6 +14,16 @@
       "duration": 50,
       "status": "Done",
       "author": "Jonathan150408"
+    },
+    {
+      "id": "b63e3e01-75fe-49a9-bce0-e70b3a2aa2b5",
+      "type": "commitless",
+      "name": "learn(john the ripper) : se documenter et faire fonctionner la VM",
+      "description": "Le VM était capricieuse, je pense que je vais devoir en monter une nouvelle mais Ubuntu (ou Cali)",
+      "date": "2026-04-29T12:13",
+      "duration": 30,
+      "status": "Done",
+      "author": "Jonathan150408"
     }
   ]
 }
