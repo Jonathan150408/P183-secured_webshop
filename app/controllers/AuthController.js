@@ -79,6 +79,16 @@ module.exports = {
   register: async (req, res) => {
     const { username, email, password, address, photoPath } = req.body;
 
+    //test de force du mot de passe
+    const level1 = /[a-zA-Z]{5,}/; //5 lettres (minuscule ou/et majuscule)
+    const level2 = /[0-9]{2,}/; //2 chiffres
+    if (!level1.test(password) || !level2.test(password)) {
+      return res.status(400).json({
+        error:
+          "Votre mot de passe doit comporter au moins 5 lettres et 2 chiffres.",
+      });
+    }
+
     //ajouter le poivre au pwd
     const pepper = process.env.PEPPER;
     let passwordWithPepper = password + pepper;
