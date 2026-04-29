@@ -178,4 +178,140 @@
 
 ### 10 politique de mot de passe
 
+> Nous nous attaquons maintenant à la politique du mot de passe. Le but est d'empêcher les utilisateurs de créer un compte avec un mot de passe trop faible. La politique que j'ai implémenté est : minimum 5 lettres (majuscules ou minuscules) et minimum 2 chiffres. J'ai ainsi utilisé des regexes afin de tester les critères, voici ce qui se passe dans le frontend :
+>
+> ```html
+> <form id="login_form" novalidate>
+>   ...
+>   <!-- mot de passe -->
+>   <label for="pwd">Mot de passe</label>
+>   <input type="text" id="pwd" value="" />
+>   <div id="password_strength"></div>
+>   <div id="recommandations">
+>     <p>Obligatoire :</p>
+>     <ul>
+>       <li id="strength1">Au moins 5 lettres (majuscules ou minuscules)</li>
+>       <li id="strength2">Au moins 2 chiffres</li>
+>     </ul>
+>     <p>Conseillés :</p>
+>     <ul>
+>       <li id="strength3">Au moins 12 caractères au total</li>
+>       <li id="strength4">Au moins 1 caractère spécial (ex: !@#$%^&*)</li>
+>     </ul>
+>   </div>
+>   ...
+>
+>   <script>
+>       // quand submit -> appelle sendData()
+>        ...
+>
+>       function sendData(event) {
+>         event.preventDefault(); //empêche de submit
+>
+>        //ON AJOUTE CECI
+>        //si password pas assez fort, ne pas envoyer
+>        if (passwordStrength() < 2) {
+>          alert(
+>            "Votre mot de passe doit comporter au moins 5 lettres et 2 chiffres.",
+>          );
+>          return;
+>        } else {
+>          const username = document.getElementById("username").value;
+>          const email = document.getElementById("email").value;
+>          ...
+>         }
+>       }
+>
+>       const passwordStrength = () => verfifyPasswordStrength();
+>       function verfifyPasswordStrength(event) {
+>         // on vérifie que le mot de passe est assez fort
+>         const password = document.getElementById("pwd").value;
+>         const strengthBar = document.getElementById("password_strength");
+>         strengthBar.style.height = "10px";
+>         strengthBar.style.borderRadius = "5px";
+>         strengthBar.style.marginTop = "5px"
+>
+>         //regexes de test
+>         const level1 = /[a-zA-Z]{5,}/; //5 lettres (minuscule ou/et majuscule)
+>         const level2 = /[0-9]{2,}/; //2 chiffres
+>         const level3 = /.{12,}/; //12 caractères
+>        const level4 = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,}/; //1 caractère spécial
+>
+>         //reset compteur et couleurs
+>         let strength = 0;
+>         document.getElementById("strength1").style.color = "black";
+>         document.getElementById("strength2").style.color = "black";
+>         document.getElementById("strength3").style.color = "black";
+>         document.getElementById("strength4").style.color = "black";
+>
+>         //tester la strength
+>         if (level1.test(password)) {
+>           document.getElementById("strength1").style.color = "green";
+>           strength++;
+>        }
+>        if (level2.test(password)) {
+>          document.getElementById("strength2").style.color = "green";
+>         strength++;
+>      }
+>     if (level3.test(password)) {
+>       document.getElementById("strength3").style.color = "green";
+>       strength++;
+>     }
+>     if (level4.test(password)) {
+>       document.getElementById("strength4").style.color = "green";
+>       strength++;
+>     }
+>
+>         //déterminer si critères remplis
+>         if (level1.test(password) && level2.test(password)) {
+>           document.getElementById("submit_btn").disabled = false;
+>         } else {
+>           document.getElementById("submit_btn").disabled = true;
+>         }
+>
+>         //modifie la barre de progression
+>         switch (strength) {
+>           case (strength = 0):
+>             strengthBar.style.backgroundColor = "rgb(255, 0, 0, 0.8)";
+>             strengthBar.style.width = "10%";
+>             break;
+>           case (strength = 1):
+>             strengthBar.style.backgroundColor = "rgb(200, 0, 0, 0.5)";
+>             strengthBar.style.width = "25%";
+>             break;
+>           case (strength = 2):
+>             strengthBar.style.backgroundColor = "rgb(255, 165, 0, 0.5)";
+>             strengthBar.style.width = "50%";
+>             break;
+>           case (strength = 3):
+>             strengthBar.style.backgroundColor = "rgb(144, 238, 144, 0.5)";
+>             strengthBar.style.width = "75%";
+>             break;
+>           case (strength = 4):
+>             strengthBar.style.backgroundColor = "rgb(0, 128, 0, 0.5)";
+>             strengthBar.style.width = "100%";
+>             break;
+>         }
+>
+>         return strength;
+>       }
+>   </script>
+> </form>
+> ```
+>
+> Concernant ensuite la partie backend du projet, il nous suffit d'ajouter un simple test dans AuthController.js - partie register du controlleur. Nous ajoutons donc :
+>
+> ```js
+> //test de force du mot de passe
+>
+> const level1 = /[a-zA-Z]{5,}/; //5 lettres (minuscule ou/et majuscule)
+> const level2 = /[0-9]{2,}/; //2 chiffres
+> if (!level1.test(password) || !level2.test(password)) {
+>   return res.status(400).json({
+>     error:
+>       "Votre mot de passe doit comporter au moins 5 lettres et 2 chiffres.",
+>   });
+> }
+> ```
+
 ## Conclusion
