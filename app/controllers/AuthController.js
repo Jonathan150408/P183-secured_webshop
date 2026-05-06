@@ -1,8 +1,8 @@
-const db = require("../config/db");
-const argon2 = require("argon2");
-const jwt = require("jsonwebtoken");
+import db from "../config/db.js";
+import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 
-module.exports = {
+const AuthController = {
   // ----------------------------------------------------------
   // POST /api/auth/login
   // ----------------------------------------------------------
@@ -40,7 +40,7 @@ module.exports = {
         //mot infos utilisateur ok -> connexion et création du token
         //récupérer les data ustilisateur
         const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
-        //aidé par l'IA pour la promesse
+        //aidé par l'IA pour la promess
         const results = await new Promise((resolve, reject) => {
           db.query(userInfosQuery, [email], (err, results) => {
             if (err) reject(err);
@@ -59,6 +59,7 @@ module.exports = {
             role: role,
           },
           secret,
+          // { expiresIn: "10s" },
         );
 
         //message de connexion réussie
@@ -123,3 +124,5 @@ module.exports = {
     );
   },
 };
+
+export default AuthController;

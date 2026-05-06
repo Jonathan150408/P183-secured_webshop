@@ -62,6 +62,21 @@ app.get(
 );
 
 // Démarrage du serveur
-https.createServer(options, app).listen(8080, () => {
+const server = https.createServer(options, app);
+server.listen(8080, () => {
   console.log("Serveur démarré sur https://localhost:8080");
 });
+
+//code IA
+//close le serveur pour éviter crash "Address already in use" à chaque redémarrage
+const shutdown = () => {
+  console.log("Cleaning up...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+};
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+process.on("SIGUSR2", shutdown);
+process.on("exit", shutdown);
