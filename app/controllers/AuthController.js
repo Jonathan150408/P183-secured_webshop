@@ -38,7 +38,7 @@ const AuthController = {
       );
       if (accessGranted) {
         //mot infos utilisateur ok -> connexion et création du token
-        //récupérer les data ustilisateur
+        //récupérer les data utilisateur
         const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
         //aidé par l'IA pour la promess
         const results = await new Promise((resolve, reject) => {
@@ -50,22 +50,23 @@ const AuthController = {
         const username = results[0]?.username;
         const role = results[0].role;
 
-        //créer le token
+        //créer le refresh token
         const secret = process.env.JWT_SECRET;
         const token = jwt.sign(
           {
+            tokenType: "refresh",
             username: username,
             email: email,
             role: role,
           },
           secret,
-          // { expiresIn: "10s" },
+          { expiresIn: "30d" },
         );
 
         //message de connexion réussie
         res.status(200).json({
           message: "Connexion réussie",
-          token: token,
+          refreshToken: token,
         });
       } else {
         //mdp faux -> message erreur plus générique
@@ -122,6 +123,32 @@ const AuthController = {
         }
       },
     );
+  },
+
+  ///----------------------------------------------------------
+  // POST /api/auth/refresh
+  //----------------------------------------------------------
+  refreshToken: (req, res) => {
+    console.log(req);
+    const { username, email, role } = req.user;
+    //créer l'access token
+    const secret = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      {
+        tokenType: "access",
+        username: username,
+        email: email,
+        role: role,
+      },
+      secret,
+      { expiresIn: "15m" },
+    );
+
+    //message de connexion réussie
+    res.status(200).json({
+      message: "Token rafraîchi",
+      accessToken: token,
+    });
   },
 };
 

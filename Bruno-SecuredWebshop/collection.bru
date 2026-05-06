@@ -3,10 +3,12 @@ auth {
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvbmF0aGFuIiwiZW1haWwiOiJqb25hdGhhbi5qdW5vZEBlZHV2YXVkLmNoIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc2ODQ5NDMzfQ.UEXkNoDJjfPYDXEzQpZPGt3v3W3S2Qu6_veYMXoL5Ho
+  token: {{accessToken}}
 }
 
 vars:pre-request {
   BaseUrl: https://localhost:8080
   ApiUrl: https://localhost:8080/api
+  accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJ1c2VybmFtZSI6IkpvbmF0aGFuIiwiZW1haWwiOiJqb25hdGhhbi5qdW5vZEBlZHV2YXVkLmNoIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc4MDU3MDIyLCJleHAiOjE3NzgwNTc5MjJ9.JsoALldZkAdAnp7OfXPCbh5Nt1EVcCBDy9q5os0ueOs
+  refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlblR5cGUiOiJyZWZyZXNoIiwidXNlcm5hbWUiOiJKb25hdGhhbiIsImVtYWlsIjoiam9uYXRoYW4uanVub2RAZWR1dmF1ZC5jaCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3ODA1NTY2OSwiZXhwIjoxNzgwNjQ3NjY5fQ.JAbUml8zQxvT798uBaridyIxrRzA9wN9aC7ZI2rVuNQ
 }
