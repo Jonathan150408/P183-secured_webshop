@@ -234,4 +234,23 @@
 > Enfin ça ce serait embêtant, devoir entrer username - mot de passe tous les quart d'heures. C'est pourquoi nous implémentons aussi un refresh token qui permet de générer un nouvel access token.  
 > Nous créons donc une nouvelle route afin de pouvoir créer un nouveau token `router.post("/refresh", verifyRefreshToken, controller.refreshToken);`. verifyRefreshToken est une nouvelle méthode qui vient du middleware et qui, comme son nom l'indique, va vérifier le token de rafraîchissement. controller.refreshToken est aussi une nouvelle méthode du controlleur d'authentification qui va créer et retourner un nouvel access token.
 
+### 12 Audit des dépendances npm
+
+> Il devient important de réaliser un "audit npm". En effet, npm choisit parfoit des packages vulnérables et introduit donc des failles dans l'application. Nous lançons donc la commande `npm audit` et voici ce que j'obtient :
+>
+> |       Nom       |  Degré   |                     Utilisation                     |                          Souci                          |            Conditions            |
+> | :-------------: | :------: | :-------------------------------------------------: | :-----------------------------------------------------: | :------------------------------: |
+> |   Body-parser   |   haut   |            Converti le body des requêtes            |                    Dénial of Service                    |  l'encodage des url est activé   |
+> | Brace-expansion |  modéré  | Génère des string en se basant sur des pseudo-regex | Boucle infinie, consomation de temps-ressources-mémoire |        Certains patternes        |
+> |     Braces      |   haut   |       Calcul des résultats d'une pseudo-regex       |         Pareil, mauvaise gestion des ressources         |        Certains patternes        |
+> |     Cookie      |   bas    |                 Création de cookies                 |  Accepte des cookies avec des caractères indésirables   |                -                 |
+> |    Minimatch    |   haut   | Gérer des patternes de Regex pour fichiers (\*.js)  |       Prend beaucoup plus de temps que nécéssaire       |        Certains patternes        |
+> |     Openssl     | critique |               Execution de commandes                | Utilisation afin de lancer des commandes malveillantes  |                -                 |
+> | path-to-regexp  |   haut   |          Détection d'url à partir de Regex          |                  Similaire à Minimatch                  |        Certains patternes        |
+> |    Picomatch    |   haut   |                   Regex avancées                    |    Mauvaise interprétation de classes de caractères     |        Certains patternes        |
+> |       qs        |  modéré  |        Transformer les Objets JS en query db        |            Consommation excessive de mémoire            | Indentation de tableaux profonde |
+> |      send       |   bas    |         Partages de données et de fichiers          |       Vulnérable aux injections hmtl, failles XSS       |            Injections            |
+>
+> Maintenant que nous savons tout ça, nous pouvons demander à npm de tout réparer : lancez `npm audit fix`. Et que la magie opère.
+
 ## Conclusion
