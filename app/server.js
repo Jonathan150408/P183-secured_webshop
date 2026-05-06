@@ -35,7 +35,7 @@ import adminRoute from "./routes/Admin.js";
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
-app.use("/api/admin", verifyAccessToken, verifyAdmin, adminRoute);
+app.use("/api/admin", adminRoute);
 
 // ---------------------------------------------------------------
 // Routes pages (retournent du HTML)
@@ -55,14 +55,8 @@ app.get("/register", (_req, res) =>
 app.get("/profile", verifyAccessToken, (_req, res) =>
   res.sendFile(path.join(__dirname, "views", "profile.html")),
 );
-app.get(
-  "/admin",
-  verifyAccessToken,
-  verifyAdmin,
-  (
-    _req,
-    res, //need admin verif
-  ) => res.sendFile(path.join(__dirname, "views", "admin.html")),
+app.get("/admin", verifyAccessToken, verifyAdmin, (_req, res) =>
+  res.sendFile(path.join(__dirname, "views", "admin.html")),
 );
 
 // Démarrage du serveur
@@ -70,17 +64,3 @@ const server = https.createServer(options, app);
 server.listen(8080, () => {
   console.log("Serveur démarré sur https://localhost:8080");
 });
-
-// //code IA
-// //close le serveur pour éviter crash "Address already in use" à chaque redémarrage
-// const shutdown = () => {
-//   console.log("Cleaning up...");
-//   server.close(() => {
-//     console.log("Server closed");
-//     process.exit(0);
-//   });
-// };
-// process.on("SIGINT", shutdown);
-// process.on("SIGTERM", shutdown);
-// process.on("SIGUSR2", shutdown);
-// process.on("exit", shutdown);

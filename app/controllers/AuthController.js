@@ -51,7 +51,7 @@ const AuthController = {
         const role = results[0].role;
 
         //créer le refresh token
-        const secret = process.env.JWT_SECRET;
+        const secret = process.env.JWTREFRESH_SECRET;
         const token = jwt.sign(
           {
             tokenType: "refresh",
@@ -132,7 +132,7 @@ const AuthController = {
     console.log(req);
     const { username, email, role } = req.user;
     //créer l'access token
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env.JWTACCESS_SECRET;
     const token = jwt.sign(
       {
         tokenType: "access",
