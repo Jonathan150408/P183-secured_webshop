@@ -33,7 +33,7 @@ import authRoute from "./routes/Auth.js";
 import profileRoute from "./routes/Profile.js";
 import adminRoute from "./routes/Admin.js";
 
-app.use("/api/auth", authRoute); //se trouve aussi refresh -> vérif todo
+app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/admin", verifyAccessToken, verifyAdmin, adminRoute);
 

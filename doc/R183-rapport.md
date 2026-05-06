@@ -227,4 +227,11 @@
 > }
 > ```
 
+### 11 Limiter la durée du token jwt
+
+> À présent, le but est de rendre le token plus safe pour l'utilisateur. En effet, ce token permet de faire pas mal de choses et donc il est important de limiter ce token.  
+> Nous allons donc ajouter un délais d'expiration au token : 15 minutes. `{ expiresIn: "15m" }` Après ces 15 minutes le token ne sera plus valide et l'utilisateur devra être revérifié.  
+> Enfin ça ce serait embêtant, devoir entrer username - mot de passe tous les quart d'heures. C'est pourquoi nous implémentons aussi un refresh token qui permet de générer un nouvel access token.  
+> Nous créons donc une nouvelle route afin de pouvoir créer un nouveau token `router.post("/refresh", verifyRefreshToken, controller.refreshToken);`. verifyRefreshToken est une nouvelle méthode qui vient du middleware et qui, comme son nom l'indique, va vérifier le token de rafraîchissement. controller.refreshToken est aussi une nouvelle méthode du controlleur d'authentification qui va créer et retourner un nouvel access token.
+
 ## Conclusion
