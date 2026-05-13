@@ -19,12 +19,9 @@ const AuthController = {
     let passwordWithPepper = password + pepper;
 
     //récupérer les infos user
-    const query = `SELECT password, username, role FROM users WHERE email = ? LIMIT 1;`;
-    const results = await new Promise((resolve, reject) => {
-      db.query(query, [email], (err, results) => {
-        if (err) reject(err);
-        else resolve(results);
-      });
+    const results = await getUserInfos(email).catch((err) => {
+      res.status(500).json({ error: "Quelque chose s'est mal passé" });
+      return;
     });
     //valeurs vides
     let username;
@@ -143,18 +140,24 @@ const AuthController = {
   // POST /api/auth/refresh
   //----------------------------------------------------------
   refreshToken: async (req, res) => {
+    //get le token et les infos
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      res.status(401).json({ error: "Token de rafraîchissement manquant" });
+      return;
+    }
+    //vérifier le token
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWTREFRESH_SECRET);
+    } catch (error) {
+      res.status(401).json({ error: "Token de rafraîchissement invalide" });
+      return;
+    }
+    const { username, email, role } = decoded;
+
     //créer l'access token
-    const secret = process.env.JWTACCESS_SECRET;
-    const token = jwt.sign(
-      {
-        tokenType: "access",
-        username: username,
-        email: email,
-        role: role,
-      },
-      secret,
-      { expiresIn: "15m" },
-    );
+    const token = createAccessToken({ username, email, role });
 
     //cookie
     res.cookie("accessToken", token, {
@@ -185,6 +188,17 @@ function createAccessToken(user) {
     { expiresIn: "15m" },
   );
   return token;
+}
+async function getUserInfos(email) {
+  const query = `SELECT password, username, role FROM users WHERE email = ? LIMIT 1;`;
+  const results = await new Promise((resolve, reject) => {
+    db.query(query, [email], (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+
+  return results;
 }
 
 export default AuthController;
