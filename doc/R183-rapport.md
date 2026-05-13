@@ -238,19 +238,29 @@
 
 > Il devient important de réaliser un "audit npm". En effet, npm choisit parfoit des packages vulnérables et introduit donc des failles dans l'application. Nous lançons donc la commande `npm audit` et voici ce que j'obtient :
 >
-> |       Nom       |  Degré   |                     Utilisation                     |                          Souci                          |            Conditions            |
-> | :-------------: | :------: | :-------------------------------------------------: | :-----------------------------------------------------: | :------------------------------: |
-> |   Body-parser   |   haut   |            Converti le body des requêtes            |                    Dénial of Service                    |  l'encodage des url est activé   |
-> | Brace-expansion |  modéré  | Génère des string en se basant sur des pseudo-regex | Boucle infinie, consomation de temps-ressources-mémoire |        Certains patternes        |
-> |     Braces      |   haut   |       Calcul des résultats d'une pseudo-regex       |         Pareil, mauvaise gestion des ressources         |        Certains patternes        |
-> |     Cookie      |   bas    |                 Création de cookies                 |  Accepte des cookies avec des caractères indésirables   |                -                 |
-> |    Minimatch    |   haut   | Gérer des patternes de Regex pour fichiers (\*.js)  |       Prend beaucoup plus de temps que nécéssaire       |        Certains patternes        |
-> |     Openssl     | critique |               Execution de commandes                | Utilisation afin de lancer des commandes malveillantes  |                -                 |
-> | path-to-regexp  |   haut   |          Détection d'url à partir de Regex          |                  Similaire à Minimatch                  |        Certains patternes        |
-> |    Picomatch    |   haut   |                   Regex avancées                    |    Mauvaise interprétation de classes de caractères     |        Certains patternes        |
-> |       qs        |  modéré  |        Transformer les Objets JS en query db        |            Consommation excessive de mémoire            | Indentation de tableaux profonde |
-> |      send       |   bas    |         Partages de données et de fichiers          |       Vulnérable aux injections hmtl, failles XSS       |            Injections            |
+> |       Nom       |  Degré   |               Utilisation                |                          Souci                          |            Conditions            |
+> | :-------------: | :------: | :--------------------------------------: | :-----------------------------------------------------: | :------------------------------: |
+> |   Body-parser   |   haut   |      Converti le body des requêtes       |                    Dénial of Service                    |  l'encodage des url est activé   |
+> | Brace-expansion |  modéré  | Génère string en se basant sur des regex | Boucle infinie, consomation de temps-ressources-mémoire |        Certains patternes        |
+> |     Braces      |   haut   | Calcul des résultats d'une pseudo-regex  |         Pareil, mauvaise gestion des ressources         |        Certains patternes        |
+> |     Cookie      |   bas    |           Création de cookies            |  Accepte des cookies avec des caractères indésirables   |                -                 |
+> |    Minimatch    |   haut   | Patternes de Regex pour fichiers (\*.js) |       Prend beaucoup plus de temps que nécéssaire       |        Certains patternes        |
+> |     Openssl     | critique |          Execution de commandes          | Utilisation afin de lancer des commandes malveillantes  |                -                 |
+> | path-to-regexp  |   haut   |    Détection d'url à partir de Regex     |                  Similaire à Minimatch                  |        Certains patternes        |
+> |    Picomatch    |   haut   |              Regex avancées              |    Mauvaise interprétation de classes de caractères     |        Certains patternes        |
+> |       qs        |  modéré  |  Transformer les Objets JS en query db   |            Consommation excessive de mémoire            | Indentation de tableaux profonde |
+> |      send       |   bas    |    Partages de données et de fichiers    |       Vulnérable aux injections hmtl, failles XSS       |            Injections            |
 >
 > Maintenant que nous savons tout ça, nous pouvons demander à npm de tout réparer : lancez `npm audit fix`. Et que la magie opère.
+
+### 15 limiter le nombre de tentatives de login
+
+> Une tâche simple et rapide : Afin de parer au brute-force, nous devons limiter le nombre de tentatives de login par ip. Nous allons mettre la limite à 5 tentative par IP par minute. L'exemple de la doc ([https://www.npmjs.com/package/express-rate-limit](https://www.npmjs.com/package/express-rate-limit)) est parfaitement suffisant. Nous l'ajoutons donc au fichier _server.js_, mais nous adaptons la route qui devient :
+>
+> ```js
+> app.post("/api/auth/login", limiter);
+> ```
+>
+> Et c'est déjà terminé, merci express-rate-limit !!
 
 ## Conclusion
