@@ -1,17 +1,25 @@
 // =============================================================
 // Middleware d'authentification
 // =============================================================
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
+/**
+ * vérifie le token d'accès
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
 function verifyAccessToken(req, res, next) {
-  const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
+  //get le token access
+  const token = req.cookies.accessToken;
   //si token manquant
   if (!token) {
     return res.status(401).json({ message: "Token manquant" });
   }
   //vérifier le token
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWTACCESS_SECRET);
     req.user = decoded;
     if (req.user.tokenType !== "access") {
       return res.status(401).json({ message: "Token d'accès invalide" });
@@ -23,15 +31,23 @@ function verifyAccessToken(req, res, next) {
   }
 }
 
+/**
+ * vérifie le token de rafraîchissement
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
 function verifyRefreshToken(req, res, next) {
-  const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
+  //get le token refresh
+  const token = req.cookies.refreshToken;
   //si token manquant
   if (!token) {
     return res.status(401).json({ message: "Token manquant" });
   }
   //vérifier le token
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWTREFRESH_SECRET);
     req.user = decoded;
     if (req.user.tokenType !== "refresh") {
       return res
@@ -45,6 +61,13 @@ function verifyRefreshToken(req, res, next) {
   }
 }
 
+/**
+ * vérifie que l'utilisateur est un administrateur
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
 function verifyAdmin(req, res, next) {
   if (req.user.role !== "admin") {
     return res
@@ -56,4 +79,4 @@ function verifyAdmin(req, res, next) {
   }
 }
 
-module.exports = { verifyRefreshToken, verifyAccessToken, verifyAdmin };
+export { verifyAccessToken, verifyRefreshToken, verifyAdmin };

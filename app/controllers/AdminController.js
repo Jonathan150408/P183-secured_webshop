@@ -1,16 +1,21 @@
-const db = require('../config/db');
+import db from "../config/db.js";
 
-module.exports = {
-
-    // ----------------------------------------------------------
-    // GET /api/admin/users
-    // ----------------------------------------------------------
-    getUsers: (_req, res) => {
-        db.query('SELECT id, username, email, role, address FROM users', (err, results) => {
-            if (err) {
-                return res.status(500).json({ error: 'Erreur serveur' });
-            }
-            res.json(results);
-        });
-    }
+const AdminController = {
+  // ----------------------------------------------------------
+  // GET /api/admin/users
+  // ----------------------------------------------------------
+  getUsers: async (req, res) => {
+    //get tous les users
+    const query = "SELECT id, username, email, role, address FROM users";
+    const results = await new Promise((resolve, reject) => {
+      db.query(query, (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
+    //réponse
+    res.status(200).json(results);
+  },
 };
+
+export default { AdminController };
