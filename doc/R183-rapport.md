@@ -253,6 +253,11 @@
 >
 > Maintenant que nous savons tout ça, nous pouvons demander à npm de tout réparer : lancez `npm audit fix`. Et que la magie opère.
 
+### 14 Gérer les exceptions
+
+> Nous devons faire en sorte que le serveur ne donne pas trop d'infos au client. En effet, si le client envoie une mauvaise requête ou une requête malveilante, le serveur ne doit pas envoyer tous les détails de l'erreur. Cela permettrait à un potentiel attaquant de trouver des failles.  
+> Nous allons donc checker tous les retours JSON, console.log et nous allons en profiter pour ajuster les status codes http. J'ai eu des changements à faire dans les controlleurs, le fichier _server.js_, ainsi que certaines vues.
+
 ### 15 limiter le nombre de tentatives de login
 
 > Une tâche simple et rapide : Afin de parer au brute-force, nous devons limiter le nombre de tentatives de login par ip. Nous allons mettre la limite à 5 tentative par IP par minute. L'exemple de la doc ([https://www.npmjs.com/package/express-rate-limit](https://www.npmjs.com/package/express-rate-limit)) est parfaitement suffisant. Nous l'ajoutons donc au fichier _server.js_, mais nous adaptons la route qui devient :
