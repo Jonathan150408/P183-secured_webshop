@@ -7,8 +7,8 @@ const AuthController = {
   // POST /api/auth/login
   // ----------------------------------------------------------
   login: (req, res) => {
+    //récupérer les data
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ error: "Email et mot de passe requis" });
     }
@@ -40,7 +40,7 @@ const AuthController = {
         //mot infos utilisateur ok -> connexion et création du token
         //récupérer les data utilisateur
         const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
-        //aidé par l'IA pour la promess
+        //aidé par l'IA pour la promesse
         const results = await new Promise((resolve, reject) => {
           db.query(userInfosQuery, [email], (err, results) => {
             if (err) reject(err);

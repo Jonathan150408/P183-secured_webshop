@@ -10,6 +10,8 @@ import https from "https";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { rateLimit } from "express-rate-limit";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -18,6 +20,18 @@ const options = {
   key: fs.readFileSync(path.join(__dirname, "certs", "key.pem")),
   cert: fs.readFileSync(path.join(__dirname, "certs", "cert.pem")),
 };
+
+//limiter
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 5, // Limiter à 5 requêtes par IP
+  standardHeaders: false,
+  legacyHeaders: false,
+  ipv6Subnet: 56, // Limiter les adresses IPv6 par sous-réseau (56 permiers bits sont déterminants)
+});
+
+// Utiliser le limiter pour /login
+app.post("/api/auth/login", limiter);
 
 // Middleware pour parser le corps des requêtes
 app.use(express.json());
