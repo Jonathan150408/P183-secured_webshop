@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.6.1",
     "express": "^4.19.1",

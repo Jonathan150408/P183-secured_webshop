@@ -10,45 +10,44 @@ const AuthController = {
     //récupérer les data
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ error: "Email et mot de passe requis" });
+      res.status(400).json({ error: "Email et mot de passe requis" });
+      return;
     }
 
     //ajouter le poivre au pwd
     const pepper = process.env.PEPPER;
     let passwordWithPepper = password + pepper;
 
-    const query = `SELECT password FROM users WHERE email = ? LIMIT 1;`;
-
+    //récupérer les infos user
+    const query = `SELECT password, username, role FROM users WHERE email = ? LIMIT 1;`;
     const results = await new Promise((resolve, reject) => {
       db.query(query, [email], (err, results) => {
         if (err) reject(err);
         else resolve(results);
       });
     });
-
+    //valeurs vides
+    let username;
+    let role;
+    let pwd;
+    //set les valeurs
+    try {
+      username = results[0]?.username;
+      role = results[0].role;
+      pwd = results[0].password;
+    } catch (error) {
+      res.status(500).json({ error: "Quelque chose s'est mal passé" });
+      return;
+    }
     //si rien n'est retourné (email incorrect ou pwd inexistant)
-    if (results.length === 0) {
-      return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+    if (results.length === 0 || !pwd || !username || !role) {
+      res.status(401).json({ error: "Email ou mot de passe incorrect" });
+      return;
     }
 
     //sinon on vérifie le hash
-    const accessGranted = await argon2.verify(
-      results[0].password,
-      passwordWithPepper,
-    );
+    const accessGranted = await argon2.verify(pwd, passwordWithPepper);
     if (accessGranted) {
-      //mot infos utilisateur ok -> connexion et création du token
-      //récupérer les data utilisateur
-      const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
-      const results = await new Promise((resolve, reject) => {
-        db.query(userInfosQuery, [email], (err, results) => {
-          if (err) reject(err);
-          else resolve(results);
-        });
-      });
-      const username = results[0]?.username;
-      const role = results[0].role;
-
       //créer le refresh token
       const secret = process.env.JWTREFRESH_SECRET;
       const token = jwt.sign(
@@ -61,12 +60,29 @@ const AuthController = {
         secret,
         { expiresIn: "30d" },
       );
+      //créer le access token
+      const accessToken = createAccessToken({ username, email, role });
+
+      //cookies
+      res.cookie("refreshToken", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 jours
+        path: "/api/auth/refresh",
+      });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
 
       //message de connexion réussie
       res.status(200).json({
         message: "Connexion réussie",
-        refreshToken: token,
       });
+      return;
     } else {
       //mdp faux -> message erreur plus générique
       res.status(401).json({ message: "Email ou mot de passe incorrect" });
@@ -126,9 +142,7 @@ const AuthController = {
   ///----------------------------------------------------------
   // POST /api/auth/refresh
   //----------------------------------------------------------
-  refreshToken: (req, res) => {
-    console.log(req);
-    const { username, email, role } = req.user;
+  refreshToken: async (req, res) => {
     //créer l'access token
     const secret = process.env.JWTACCESS_SECRET;
     const token = jwt.sign(
@@ -142,12 +156,35 @@ const AuthController = {
       { expiresIn: "15m" },
     );
 
+    //cookie
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
     //message de connexion réussie
     res.status(200).json({
-      message: "Token rafraîchi",
-      accessToken: token,
+      message: "Token access renouvelé",
     });
   },
 };
+
+///Autres méthodes utiles
+function createAccessToken(user) {
+  const secret = process.env.JWTACCESS_SECRET;
+  const token = jwt.sign(
+    {
+      tokenType: "access",
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    secret,
+    { expiresIn: "15m" },
+  );
+  return token;
+}
 
 export default AuthController;

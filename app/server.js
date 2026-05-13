@@ -1,5 +1,5 @@
 import "dotenv/config.js";
-
+import cookieParser from "cookie-parser";
 import {
   verifyRefreshToken,
   verifyAccessToken,
@@ -36,6 +36,9 @@ const limiter = rateLimit({
 
 // Utiliser le limiter pour /login
 app.post("/api/auth/login", limiter);
+
+//ajouter les cookies
+app.use(cookieParser());
 
 // Middleware pour parser le corps des requêtes
 app.use(express.json());
