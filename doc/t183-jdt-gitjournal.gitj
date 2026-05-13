@@ -34,6 +34,16 @@
       "duration": 30,
       "status": "Done",
       "author": "Jonathan150408"
+    },
+    {
+      "id": "5b845eab-eb7f-4b49-b3e1-1d37d9c1dca7",
+      "type": "commitless",
+      "name": "chore(review code) : review avec l'enseignant",
+      "description": "Nous avons découvert que le login avait un souci -> répercutions sur /profile et /admin.\r\nMauvaise gestion du token \"access\"",
+      "date": "2026-05-13T07:25:00.000Z",
+      "duration": 15,
+      "status": "Done",
+      "author": "Jonathan150408"
     }
   ]
 }
