@@ -54,15 +54,9 @@
           .then(async (response) => {
             if (response.ok) {
               window.location.href = "/";
-            } else {
-              const error = await response.json();
-              console.error(error);
             }
           })
-          // PEUT ETRE CHANGER CA
-          .catch((e) => {
-            console.log(e);
-          });
+          .catch((e) => {});
       }
     </script>
   </body>

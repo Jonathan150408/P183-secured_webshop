@@ -6,7 +6,7 @@ const AuthController = {
   // ----------------------------------------------------------
   // POST /api/auth/login
   // ----------------------------------------------------------
-  login: (req, res) => {
+  login: async (req, res) => {
     //récupérer les data
     const { email, password } = req.body;
     if (!email || !password) {
@@ -19,60 +19,58 @@ const AuthController = {
 
     const query = `SELECT password FROM users WHERE email = ? LIMIT 1;`;
 
-    db.query(query, [email], async (err, results) => {
-      //si erreur
-      if (err) {
-        return res.status(500).json({ error: err.message, query: query });
-      }
-      //si rien n'est retourné (email incorrect ou pwd inexistant)
-      if (results.length === 0) {
-        return res
-          .status(400)
-          .json({ error: "Email ou mot de passe incorrect" });
-      }
-
-      //sinon on vérifie le hash
-      const accessGranted = await argon2.verify(
-        results[0].password,
-        passwordWithPepper,
-      );
-      if (accessGranted) {
-        //mot infos utilisateur ok -> connexion et création du token
-        //récupérer les data utilisateur
-        const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
-        //aidé par l'IA pour la promesse
-        const results = await new Promise((resolve, reject) => {
-          db.query(userInfosQuery, [email], (err, results) => {
-            if (err) reject(err);
-            else resolve(results);
-          });
-        });
-        const username = results[0]?.username;
-        const role = results[0].role;
-
-        //créer le refresh token
-        const secret = process.env.JWTREFRESH_SECRET;
-        const token = jwt.sign(
-          {
-            tokenType: "refresh",
-            username: username,
-            email: email,
-            role: role,
-          },
-          secret,
-          { expiresIn: "30d" },
-        );
-
-        //message de connexion réussie
-        res.status(200).json({
-          message: "Connexion réussie",
-          refreshToken: token,
-        });
-      } else {
-        //mdp faux -> message erreur plus générique
-        res.status(400).json({ message: "Email ou mot de passe incorrect" });
-      }
+    const results = await new Promise((resolve, reject) => {
+      db.query(query, [email], (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
     });
+
+    //si rien n'est retourné (email incorrect ou pwd inexistant)
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+    }
+
+    //sinon on vérifie le hash
+    const accessGranted = await argon2.verify(
+      results[0].password,
+      passwordWithPepper,
+    );
+    if (accessGranted) {
+      //mot infos utilisateur ok -> connexion et création du token
+      //récupérer les data utilisateur
+      const userInfosQuery = `SELECT username, role FROM users WHERE email = ? LIMIT 1;`;
+      const results = await new Promise((resolve, reject) => {
+        db.query(userInfosQuery, [email], (err, results) => {
+          if (err) reject(err);
+          else resolve(results);
+        });
+      });
+      const username = results[0]?.username;
+      const role = results[0].role;
+
+      //créer le refresh token
+      const secret = process.env.JWTREFRESH_SECRET;
+      const token = jwt.sign(
+        {
+          tokenType: "refresh",
+          username: username,
+          email: email,
+          role: role,
+        },
+        secret,
+        { expiresIn: "30d" },
+      );
+
+      //message de connexion réussie
+      res.status(200).json({
+        message: "Connexion réussie",
+        refreshToken: token,
+      });
+    } else {
+      //mdp faux -> message erreur plus générique
+      res.status(401).json({ message: "Email ou mot de passe incorrect" });
+    }
   },
 
   // ----------------------------------------------------------

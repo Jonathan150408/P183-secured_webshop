@@ -28,6 +28,10 @@ const limiter = rateLimit({
   standardHeaders: false,
   legacyHeaders: false,
   ipv6Subnet: 56, // Limiter les adresses IPv6 par sous-réseau (56 permiers bits sont déterminants)
+  message: {
+    error: "Trop de tentatives échouées, veuillez réessayer dans une minute",
+  },
+  statusCode: 429,
 });
 
 // Utiliser le limiter pour /login
