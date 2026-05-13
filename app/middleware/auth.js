@@ -7,7 +7,7 @@ function verifyAccessToken(req, res, next) {
   const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
   //si token manquant
   if (!token) {
-    return res.status(403).json({ message: "Token manquant" });
+    return res.status(401).json({ message: "Token manquant" });
   }
   //vérifier le token
   try {
@@ -27,7 +27,7 @@ function verifyRefreshToken(req, res, next) {
   const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
   //si token manquant
   if (!token) {
-    return res.status(403).json({ message: "Token manquant" });
+    return res.status(401).json({ message: "Token manquant" });
   }
   //vérifier le token
   try {

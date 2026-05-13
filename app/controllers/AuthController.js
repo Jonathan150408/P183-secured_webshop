@@ -140,21 +140,12 @@ const AuthController = {
   // POST /api/auth/refresh
   //----------------------------------------------------------
   refreshToken: async (req, res) => {
-    //get le token et les infos
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      res.status(401).json({ error: "Token de rafraîchissement manquant" });
+    const user = req.user;
+    //get les infos user
+    const { username, role } = getUserInfos(user.email).catch((err) => {
+      res.status(500).json({ error: "Quelque chose s'est mal passé" });
       return;
-    }
-    //vérifier le token
-    let decoded;
-    try {
-      decoded = jwt.verify(refreshToken, process.env.JWTREFRESH_SECRET);
-    } catch (error) {
-      res.status(401).json({ error: "Token de rafraîchissement invalide" });
-      return;
-    }
-    const { username, email, role } = decoded;
+    });
 
     //créer l'access token
     const token = createAccessToken({ username, email, role });
