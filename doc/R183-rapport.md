@@ -2,19 +2,21 @@
 
 ## Introduction
 
+> Au cours de ce projet, il nous a été demandé de rendre une application _Express_ sécure. En effet, nous avons reçu une application web, crée avec _ExpressJS_, pleine de failles. Notre but est de rendre cette application résistante à toutes sortes d'attaques.
+
 ## Tâches réalisées
 
-### 1 Implémenter la page de login frontend ✅
+### 1 Implémenter la page de login frontend
 
 > J'ai commencé par ajouter les options de navigation sur toutes les pages, ces dernières étaient en commemtaire alors ce fut rapide. J'ai ensuite crée un formulaire sur la page de login afin de recevoir les infos utilisateur.  
 > Sur la page de login, j'ai ensuite ajouté du _javascript_ afin d'enpêcher le formulaire de s'envoyer et à la place construire une requête _POST_. Enfin, nous prenons la requête et nous faisons un _fetch_ sur _/api/auth/login_.
 
-### 2 Implémenter une page d'inscription en frontend ✅
+### 2 Implémenter une page d'inscription en frontend
 
 > De même que pour l'étape précédente, nous commmençons par créer le formulaire html sur la page _register.html_. Nous ajoutons ensuite du _JavaScript_ afin de gérer la soumission du formulaire.  
 > Enfin nous allons dans _AuthController_ et nous implémentons la création d'un nouvel utiliateur.
 
-### 3 Remplacer les mots de passes en clair dans la base par un hash ✅
+### 3 Remplacer les mots de passes en clair dans la base par un hash
 
 > Afin de pouvoir démarrer cette étape, nous avons besoin d'installer [Argon2](https://www.npmjs.com/package/argon2). Ceci servira à hasher et vérifier les passwords en db. Voici la commande relative à l'installation : `npm install argon2`. À présent, nous pouvons commencer à coder, nous allons dans _AuthController_ et, dans la méthode register, nous ajoutons le bout de code qui permet de hash le mot de passe :
 >
@@ -27,7 +29,7 @@
 > Attention à bien remplacer _password_ par _haspassword_ dans la requête SQL.  
 > Une fois fait, nous recréons tous les comptes utilisateurs afin de stocker les mot de passes hashé.
 
-### 4 Ajouter un sel✅
+### 4 Ajouter un sel
 
 > Lors de cette étape, nous allons générer un sel (une chaine de caractères aléatoire) pour chaque utilisateur et nous allons l'ajouter au hash du mot de passe. En réalité, le selest généré par argon2 automatiquement. Nous n'avons qu'à retirer la partie où l'on spécifie le sel. Notre code de l'étape précédente devient donc
 >
@@ -35,7 +37,7 @@
 > const hashPassword = await argon2.hash(password);
 > ```
 
-### 5 Ajouter un poivre✅
+### 5 Ajouter un poivre
 
 > Nous allons maintenant ajouter le poivre à notre application, dans le fichier _.env_ à la racine du projet, ajoutez `PEPPER=9f3c2a8e7b1d4c6f8a91e2b5c7d9f0a1bd55672d7ecdef0ad6c46739ebcaef0`. Sentez-vous libre de changer la valeur du poivre.  
 > Ensuite nous ajoutons le poivre au mot de passe ainsi (toujours la même partie du code):
@@ -92,7 +94,7 @@
 > },
 > ```
 
-### 6 Prévenir les injections SQL✅
+### 6 Prévenir les injections SQL
 
 > Il est maintenant temps de revoir nos requêtes SQL et de les sécuriser afin de rendre les injections SQL impossibles. Nous n'avons qu'à substituer les valeurs dans la requête par des point d'interrogation. Nous définissions ensuite le contenu des ? lors de l'appel de la méthode `db.query`.  
 > Voici à quoi ça ressemble pour le login :
@@ -104,7 +106,7 @@
 > });
 > ```
 
-### 7 Implémenter l'utilisation d'un token jwt✅
+### 7 Implémenter l'utilisation d'un token jwt
 
 > À présent, nous allons restreindre l'accès à l'application afin de la rendre plus safe. Nous allons utiliser des JSON Web Tokens. Pour ceci, créez une nouvelle variable d'environnement, puis rendez-vous dans le AuthController, dans la partie login. La variable d'environnement s'appelle JWT_SECRET et contient une suite hexadécimale complexe. Pour en créer une facilement, vous pouvez visiter [ce site](https://jwtsecrets.com/).
 >
@@ -158,7 +160,7 @@
 > Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode ainsi.
 > `app.get("/profile", (_req, res) => ...` -> `app.get("/profile", verifyToken, (_req, res) => ...`
 
-### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration✅
+### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration
 
 > Puisque nous avons déjà placé le rôle utilisateur dans le token, il nous suffit de checker le role utilisateur lors de requêtes vers les routes admin (/admin et /api/admin). Nous créons donc une méthode dans auth.js (du middleware) qui permet de check le rôle que nous utilisions ensuite de la même manière que lea méthode de vérification du token.
 >
@@ -269,3 +271,28 @@
 > Et c'est déjà terminé, merci express-rate-limit !!
 
 ## Conclusion
+
+### Générale
+
+> En conclusion, ce projet aura été globalement réussi. En effet, un total de 15 points aura été terminé.  
+> Les tâches ci-dessous ont été réalisées :
+>
+> - Rendre le login fonctionnel
+> - Rendre le register fonctionnel
+> - Hasher les mots de passes en db
+> - Ajouter le sel
+> - Ajouter le poivre
+> - Corriger les requêtes SQL afin de parer l'injection
+> - Implémenter un token jwt
+> - Implémenter les rôles via jwt et protéger les routes
+> - Implémenter le _https_
+> - Ajouter la politique de mot de passe
+> - Limiter la durée du token jwt
+> - Réaliser un audit des dépendances _npm_
+> - Gérer les exceptions
+> - Limiter le nombre de tentatives de login par _ip_ par minute
+
+### Personnelle
+
+> Personnellement, j'ai bien aimé ce projet. Ceci étant je trouve que nous aurions mérité d'avoir de la théorie sur _Express_ en premier temps (dans un autre module). En effet, j'ai mis beaucoup trop de temps à essayer de comprendre comment l'application fonctionne et à quoi sert quoi.  
+> De même, j'aurais bien aimé avoir un peu plus de théorie, mais surtout d'exercices pratique durant ce module à propos des tâches à réaliser. Par exemple, avoir un exercice pratique sur le protocole _https_ m'aurait énormément aidé à savoir comment ça fonctionne et par où commencer pour l'implémenter.
