@@ -1,8 +1,14 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
+//router
+import express from "express";
 const router = express.Router();
-const controller = require("../controllers/ProfileController");
+//path
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+//autres
+import multer from "multer";
+import controller from "../controllers/ProfileController.js";
 
 // Configuration de multer pour l'upload de photos
 const storage = multer.diskStorage({
@@ -18,4 +24,4 @@ router.get("/", controller.get);
 router.post("/", controller.update);
 router.post("/photo", upload.single("photo"), controller.uploadPhoto);
 
-module.exports = router;
+export default router;

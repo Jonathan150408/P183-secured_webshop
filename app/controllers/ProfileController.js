@@ -1,6 +1,6 @@
-const db = require("../config/db");
+import db from "../config/db.js";
 
-module.exports = {
+const ProfileController = {
   // ----------------------------------------------------------
   // GET /api/profile
   // ----------------------------------------------------------
@@ -8,6 +8,16 @@ module.exports = {
     const user = req.user;
 
     //get others infos
+    const query = `SELECT address FROM users WHERE id = ? LIMIT 1;`;
+    const result = await new Promise((resolve, reject) => {
+      db.query(query, [req.user.id], (err, results) => {
+        if (err) reject(err);
+        else resolve(results[0]);
+      });
+    });
+
+    //add others infos
+    user.address = result.address;
 
     //return the user infos
     return res.status(200).json(user);
@@ -56,3 +66,5 @@ module.exports = {
     );
   },
 };
+
+export default ProfileController;
