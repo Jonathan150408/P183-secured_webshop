@@ -1,0 +1,16 @@
+meta {
+  name: Profile
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{ApiUrl}}/profile
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

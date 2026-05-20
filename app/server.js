@@ -55,8 +55,8 @@ import profileRoute from "./routes/Profile.js";
 import adminRoute from "./routes/Admin.js";
 
 app.use("/api/auth", authRoute);
-app.use("/api/profile", profileRoute);
-app.use("/api/admin", adminRoute);
+app.use("/api/profile", verifyAccessToken, profileRoute);
+app.use("/api/admin", verifyAccessToken, verifyAdmin, adminRoute);
 
 // ---------------------------------------------------------------
 // Routes pages (retournent du HTML)

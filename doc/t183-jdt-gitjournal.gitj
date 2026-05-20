@@ -44,6 +44,39 @@
       "duration": 15,
       "status": "Done",
       "author": "Jonathan150408"
+    },
+    {
+      "id": "ee325381-2e5b-484d-bd6f-300efb412b84",
+      "type": "commitless",
+      "name": "chore(TS2) : passer le test",
+      "description": "évaluation orale",
+      "date": "2026-05-20T08:29:00.000Z",
+      "duration": 15,
+      "status": "Done",
+      "author": "Jonathan150408"
+    },
+    {
+      "id": "713386b7-8ab7-4768-9c2d-fdfefbc2cc3b",
+      "type": "commitpatch",
+      "sha": "a01e5bfbaa04a5230004ebd1977266d770c21c9c",
+      "url": "https://github.com/Jonathan150408/P183-secured_webshop/commit/a01e5bfbaa04a5230004ebd1977266d770c21c9c",
+      "name": "feat(expiration et refresh token) : ajout de l'expiration et implémentation du refresh token",
+      "description": "Heureusement que l'on a eu la théorie Express et au moins Adonis en avance, j'ai passé 15 bonnes minutes à comprendre pourquoi la route https://localhost:8080/api/refresh ne fonctionnait pas...\r\nRéponse : car grâce à mes connaissances du framework j'ai réussi à implémenter la route https://localhost:8080/api/auth/refresh/refresh",
+      "date": "2026-05-06T08:48:00.000Z",
+      "duration": 65,
+      "status": "Done",
+      "author": "Jonathan150408",
+      "patch": true
+    },
+    {
+      "id": "752b23c6-482d-486e-be51-81c514abf79f",
+      "type": "commitless",
+      "name": "chore(token github) : regénérer le token expiré",
+      "description": "",
+      "date": "2026-05-20T08:30:00.000Z",
+      "duration": 5,
+      "status": "Done",
+      "author": "Jonathan150408"
     }
   ]
 }

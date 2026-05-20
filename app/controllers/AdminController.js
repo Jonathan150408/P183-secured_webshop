@@ -18,4 +18,4 @@ const AdminController = {
   },
 };
 
-export default { AdminController };
+export default AdminController;

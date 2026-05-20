@@ -19,7 +19,7 @@ const AuthController = {
     let passwordWithPepper = password + pepper;
 
     //récupérer les infos user
-    const results = await getUserInfos(email).catch((err) => {
+    const result = await getUserInfos(email).catch((err) => {
       res.status(500).json({ error: "Quelque chose s'est mal passé" });
       return;
     });
@@ -27,17 +27,19 @@ const AuthController = {
     let username;
     let role;
     let pwd;
+    let id;
     //set les valeurs
     try {
-      username = results[0]?.username;
-      role = results[0].role;
-      pwd = results[0].password;
+      username = result.username;
+      role = result.role;
+      pwd = result.password;
+      id = result.id;
     } catch (error) {
       res.status(500).json({ error: "Quelque chose s'est mal passé" });
       return;
     }
     //si rien n'est retourné (email incorrect ou pwd inexistant)
-    if (results.length === 0 || !pwd || !username || !role) {
+    if (result.length === 0 || !pwd || !username || !role) {
       res.status(401).json({ error: "Email ou mot de passe incorrect" });
       return;
     }
@@ -58,7 +60,7 @@ const AuthController = {
         { expiresIn: "30d" },
       );
       //créer le access token
-      const accessToken = createAccessToken({ username, email, role });
+      const accessToken = createAccessToken(username, email, role, id);
 
       //cookies
       res.cookie("refreshToken", token, {
@@ -142,13 +144,16 @@ const AuthController = {
   refreshToken: async (req, res) => {
     const user = req.user;
     //get les infos user
-    const { username, role } = getUserInfos(user.email).catch((err) => {
+    const { password, username, role, id } = await getUserInfos(
+      user.email,
+    ).catch((err) => {
       res.status(500).json({ error: "Quelque chose s'est mal passé" });
       return;
     });
+    const email = user.email;
 
     //créer l'access token
-    const token = createAccessToken({ username, email, role });
+    const token = createAccessToken(username, email, role, id);
 
     //cookie
     res.cookie("accessToken", token, {
@@ -166,22 +171,24 @@ const AuthController = {
 };
 
 ///Autres méthodes utiles
-function createAccessToken(user) {
+function createAccessToken(username, email, role, id) {
   const secret = process.env.JWTACCESS_SECRET;
   const token = jwt.sign(
     {
       tokenType: "access",
-      username: user.username,
-      email: user.email,
-      role: user.role,
+      username: username,
+      email: email,
+      role: role,
+      id: id,
     },
     secret,
     { expiresIn: "15m" },
   );
+
   return token;
 }
 async function getUserInfos(email) {
-  const query = `SELECT password, username, role FROM users WHERE email = ? LIMIT 1;`;
+  const query = `SELECT password, username, role, id FROM users WHERE email = ? LIMIT 1;`;
   const results = await new Promise((resolve, reject) => {
     db.query(query, [email], (err, results) => {
       if (err) reject(err);
@@ -189,7 +196,7 @@ async function getUserInfos(email) {
     });
   });
 
-  return results;
+  return results[0];
 }
 
 export default AuthController;
