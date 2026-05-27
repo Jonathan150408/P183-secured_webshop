@@ -168,13 +168,24 @@ const AuthController = {
   // POST /api/auth/logout
   //----------------------------------------------------------
   logout: async (req, res) => {
-    //access token
-    const accessToken = req.cookie.accessToken;
-    accessToken = null;
+    req.cookies.accessToken = "";
+    req.cookies.refreshToken = "";
+
+    res.status(200).json({ message: "Déconnexion réussie" });
+  },
+
+  ///----------------------------------------------------------
+  // POST /api/auth/checkAuth
+  //----------------------------------------------------------
+  checkAuth: async (req, res) => {
+    const token = req.cookies.accessToken;
+    const loggedIn = !!token;
+    return res.status(200).json({ loggedIn });
   },
 };
 
 ///Autres méthodes utiles
+//créé un token de type access
 function createAccessToken(username, email, role, id) {
   const secret = process.env.JWTACCESS_SECRET;
   const token = jwt.sign(
@@ -191,6 +202,8 @@ function createAccessToken(username, email, role, id) {
 
   return token;
 }
+
+//retourne les infos d'un user à partir de son email
 async function getUserInfos(email) {
   const query = `SELECT password, username, role, id FROM users WHERE email = ? LIMIT 1;`;
   const results = await new Promise((resolve, reject) => {
