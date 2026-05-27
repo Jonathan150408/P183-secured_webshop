@@ -9,37 +9,55 @@ document.addEventListener("DOMContentLoaded", async () => {
     credentials: "include",
   });
   const data = await response.json();
-
-  console.log("Response from /api/auth/check:", data);
   const isLogged = data.loggedIn;
 
   //changer la nav selon le login et rôle user
   if (!isLogged) {
     nav.innerHTML = `
-            <header class="topbar">
+      <header class="topbar">
                 <div class="container">
-                    <div class="brand">Secure Shop</div>
-                    <nav class="menu">
-                        <a href="/">Accueil</a>
-                        <a href="/login">Connexion</a>
-                        <a href="/register">Inscription</a>
-                    </nav>
+                <div class="brand">Secure Shop</div>
+                <nav class="menu">
+                <a href="/">Accueil</a>
+                <a href="/login">Connexion</a>
+                <a href="/register">Inscription</a>
+                </nav>
                 </div>
-            </header>
-        `;
+                </header>
+                `;
   } else {
     nav.innerHTML = `
-            <header class="topbar">
+                <header class="topbar">
                 <div class="container">
-                    <div class="brand">Secure Shop</div>
-                    <nav class="menu">
-                        <a href="/">Accueil</a>
-                        <a href="/profile">Profil</a>
-                        <a href="/admin">Admin</a>
-                        <a href="/logout">Se déconnecter</a>
-                    </nav>
+                <div class="brand">Secure Shop</div>
+                <nav class="menu">
+                <a href="/">Accueil</a>
+                <a href="/profile">Profil</a>
+                <a href="/admin">Admin</a>
+                <a href="/logout" id="logout">Se déconnecter</a>
+                </nav>
                 </div>
-            </header>
-        `;
+                </header>
+                `;
+
+    const logout = document.getElementById("logout");
+    logout.addEventListener("click", (event) => {
+      event.preventDefault();
+      signOut();
+    });
+
+    async function signOut() {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      //debug
+      console.log("Réponse logout : ", response);
+
+      if (response.status === 200) {
+        window.location.href = "/";
+      }
+    }
   }
 });

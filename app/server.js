@@ -1,10 +1,6 @@
 import "dotenv/config.js";
 import cookieParser from "cookie-parser";
-import {
-  verifyRefreshToken,
-  verifyAccessToken,
-  verifyAdmin,
-} from "./middleware/auth.js";
+import { verifyAccessToken, verifyAdmin } from "./middleware/auth.js";
 import express from "express";
 import https from "https";
 import path from "path";

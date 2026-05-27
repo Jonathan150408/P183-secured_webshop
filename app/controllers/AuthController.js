@@ -168,8 +168,16 @@ const AuthController = {
   // POST /api/auth/logout
   //----------------------------------------------------------
   logout: async (req, res) => {
-    req.cookies.accessToken = "";
-    req.cookies.refreshToken = "";
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
 
     res.status(200).json({ message: "Déconnexion réussie" });
   },
