@@ -23,6 +23,8 @@
             <input type="password" placeholder="••••••" id="pwd" value="" />
             <!-- submit -->
             <input type="submit" id="submit_btn" onclick="sendData" />
+            <!-- Message d'erreur -->
+            <p id="errorMessage"></p>
           </form>
         </div>
       </section>
@@ -42,9 +44,13 @@
         .addEventListener("submit", sendData);
 
       function sendData(event) {
-        event.preventDefault(); //empêche de submit
+        updateError(false);
+
+        //empêche de submit
+        event.preventDefault();
         const email = document.getElementById("email").value;
         const password = document.getElementById("pwd").value;
+
         // envoie le requête
         fetch("/api/auth/login", {
           method: "POST",
@@ -56,8 +62,23 @@
               window.location.href = "/";
             }
           })
-          .catch((e) => {});
+          .catch((e) => {
+            updateError(true);
+          });
+      }
+
+      const errorMessage = document.getElementById("errorMessage");
+      function updateError(visible) {
+        errorMessage.textContent = visible
+          ? ""
+          : "Cette combinaison d'email et de mot de passe ne correspond à aucun utilisateur";
       }
     </script>
   </body>
 </html>
+<style>
+  #errorMessage {
+    color: red;
+    text-align: center;
+  }
+</style>
