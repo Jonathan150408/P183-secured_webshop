@@ -68,7 +68,7 @@ const AuthController = {
         secure: true,
         sameSite: "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 jours
-        path: "/api/auth/refresh",
+        // path: "/api/auth/refresh",
       });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -162,11 +162,15 @@ const AuthController = {
       sameSite: "strict",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
+  },
 
-    //message de connexion réussie
-    res.status(200).json({
-      message: "Token access renouvelé",
-    });
+  ///----------------------------------------------------------
+  // POST /api/auth/logout
+  //----------------------------------------------------------
+  logout: async (req, res) => {
+    //access token
+    const accessToken = req.cookie.accessToken;
+    accessToken = null;
   },
 };
 

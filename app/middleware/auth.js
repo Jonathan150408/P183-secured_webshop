@@ -3,6 +3,7 @@
 // =============================================================
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
+import AuthController from "../controllers/AuthController.js";
 
 /**
  * vérifie le token d'accès
@@ -68,7 +69,7 @@ async function verifyAccessToken(req, res, next) {
     next();
   } catch (err) {
     console.error("Erreur de vérification du token d'accès : ", err);
-    switch (err.message) {
+    switch (err.name) {
       //customs
       case "MISSING_TOKEN":
         return res.status(400).json({ message: "Token manquant" });
@@ -82,12 +83,28 @@ async function verifyAccessToken(req, res, next) {
         return res.status(400).json({ error: "Token d'accès modifié" });
       //jwt
       case "TokenExpiredError":
-        return res.status(401).json({ message: "Token expiré" });
+        try {
+          const token = req.cookies.refreshToken;
+          const decoded = jwt.verify(token, process.env.JWTREFRESH_SECRET);
+          //mettre les infos à portée de la suite
+          req.user = {
+            email: decoded.email,
+          };
+          await AuthController.refreshToken(req, res);
+          next();
+          break;
+        } catch (error) {
+          return res.status(401).json({
+            message: "Token expiré",
+          });
+        }
       case "JsonWebTokenError":
         return res.status(401).json({ message: "Token invalide" });
       //default
       default:
-        return res.status(401).json({ message: "Token d'accès invalide" });
+        return res.status(401).json({
+          message: "Token d'accès invalide",
+        });
     }
   }
 }
