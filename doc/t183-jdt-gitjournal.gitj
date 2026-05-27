@@ -77,6 +77,16 @@
       "duration": 5,
       "status": "Done",
       "author": "Jonathan150408"
+    },
+    {
+      "id": "2047ca89-59a7-4853-868e-12b2b2a5ebfe",
+      "type": "commitless",
+      "name": "chore(app) : tester l'application avec un nouvel user",
+      "description": "",
+      "date": "2026-05-27T09:43:00.000Z",
+      "duration": 20,
+      "status": "Done",
+      "author": "Jonathan150408"
     }
   ]
 }
