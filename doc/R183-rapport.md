@@ -2,7 +2,7 @@
 
 ## Introduction
 
-> Au cours de ce projet, il nous a été demandé de rendre une application _Express_ sécure. En effet, nous avons reçu une application web, crée avec _ExpressJS_, pleine de failles. Notre but est de rendre cette application résistante à toutes sortes d'attaques.
+> Au cours de ce projet, il nous a été demandé de rendre une application _Express_ plus sécure. En effet, nous avons reçu une application web, crée avec _ExpressJS_, pleine de failles. Notre but est de rendre cette application résistante à toutes sortes d'attaques.
 
 ## Tâches réalisées
 
@@ -13,7 +13,7 @@
 
 ### 2 Implémenter une page d'inscription en frontend
 
-> De même que pour l'étape précédente, nous commmençons par créer le formulaire html sur la page _register.html_. Nous ajoutons ensuite du _JavaScript_ afin de gérer la soumission du formulaire.  
+> De même que pour l'étape précédente, nous commmençons par créer le formulaire html sur la page _register.html_. Nous ajoutons ensuite du _JavaScript_ afin de gérer la soumission du formulaire à l'adresse _/api/auth/register_.  
 > Enfin nous allons dans _AuthController_ et nous implémentons la création d'un nouvel utiliateur.
 
 ### 3 Remplacer les mots de passes en clair dans la base par un hash
@@ -22,25 +22,28 @@
 >
 > ```js
 > const hashPassword = await argon2.hash(password, {
->   salt: Buffer.from("saltThatIsLongEnough"), //sel fixe pour le moment
+>   salt: Buffer.from("saltThatIsLongEnough"),
 > });
 > ```
 >
-> Attention à bien remplacer _password_ par _haspassword_ dans la requête SQL.  
-> Une fois fait, nous recréons tous les comptes utilisateurs afin de stocker les mot de passes hashé.
+> Attention à bien remplacer _password_ par _hashPassword_ dans la requête SQL.  
+> Une fois fait, nous recréons tous les comptes utilisateurs afin de stocker les mot de passes nouvellement hashé.
 
 ### 4 Ajouter un sel
 
-> Lors de cette étape, nous allons générer un sel (une chaine de caractères aléatoire) pour chaque utilisateur et nous allons l'ajouter au hash du mot de passe. En réalité, le selest généré par argon2 automatiquement. Nous n'avons qu'à retirer la partie où l'on spécifie le sel. Notre code de l'étape précédente devient donc
+> Lors de cette étape, nous allons générer un sel (une chaine de caractères aléatoire) pour chaque utilisateur et nous allons l'ajouter au hash du mot de passe. En réalité, le sel est généré par argon2 automatiquement. Nous n'avons qu'à retirer la partie où l'on spécifie le sel. Notre code de l'étape précédente devient donc.
 >
 > ```js
 > const hashPassword = await argon2.hash(password);
 > ```
+>
+> Ceci est à faire pour le login autant que pour le register, sinon les mots de passes ne correspondront pas.
 
 ### 5 Ajouter un poivre
 
-> Nous allons maintenant ajouter le poivre à notre application, dans le fichier _.env_ à la racine du projet, ajoutez `PEPPER=9f3c2a8e7b1d4c6f8a91e2b5c7d9f0a1bd55672d7ecdef0ad6c46739ebcaef0`. Sentez-vous libre de changer la valeur du poivre.  
-> Ensuite nous ajoutons le poivre au mot de passe ainsi (toujours la même partie du code):
+> Nous allons maintenant ajouter le poivre à notre application. Le poivre est une (très) longue chaine de caractères qui est propre à l'application. Le poivre est généralement stocké dans un fichier .env, mais jamais dans l'application elle-même. Ce dernier nous permet de renforcer les mots de passes des utilisateurs en ajoutant de la complexité.
+> Dans le fichier _.env_ à la racine du projet, nous ajoutons donc, par exemple, `PEPPER=9f3c2a8e7b1d4c6f8a91e2b5c7d9f0a1bd55672d7ecdef0ad6c46739ebcaef0`. Sentez-vous libre de changer la valeur du poivre.  
+> Ensuite nous ajoutons le poivre au mot de passe ainsi (toujours les même parties du code):
 >
 > ```js
 > //ajouter le poivre au pwd
@@ -49,120 +52,48 @@
 > //hash le pwd
 > const hashPassword = await argon2.hash(passwordWithPepper);
 > ```
->
-> On en profite pour update le login (plus haut dans le même fichier), à présent nous commençons par récupérer le poivre et l'ajoutons au password.  
-> On va aussi update un peu la requête SQL afin de ne recevoir que les infos utiles et enfin on vérifie le hash. Voici à quoi devrait ressembler la méthode login.
->
-> ```js
-> login: (req, res) => {
->    const { email, password } = req.body;
->
->    if (!email || !password) {
->      return res.status(400).json({ error: "Email et mot de passe requis" });
->    }
->
->    //ajouter le poivre au pwd
->    const pepper = process.env.PEPPER;
->   let passwordWithPepper = password + pepper;
->
->    const query = `SELECT password FROM users WHERE email = '${email}'`;
->
->    db.query(query, async (err, results) => {
->      //si erreur
->      if (err) {
->        return res.status(500).json({ error: err.message, query: query });
->      }
->      //si rien n'est retourné (email incorrect ou pwd inexistant)
->      if (results.length === 0) {
->        return res
->          .status(400)
->          .json({ error: "Email ou mot de passe incorrect" });
->      }
->      //sinon on vérifie le hash
->      const accessGranted = await argon2.verify(
->        results[0].password,
->        passwordWithPepper,
->      );
->     if (accessGranted) {
->        //mot infos utilisateur ok -> connexion
->        res.status(200).json({ message: "Connexion réussie" });
->      } else {
->        //mdp faux -> message erreur plus générique
->       res.status(400).json({ message: "Email ou mot de passe incorrect" });
->     }
->  });
-> },
-> ```
 
 ### 6 Prévenir les injections SQL
 
 > Il est maintenant temps de revoir nos requêtes SQL et de les sécuriser afin de rendre les injections SQL impossibles. Nous n'avons qu'à substituer les valeurs dans la requête par des point d'interrogation. Nous définissions ensuite le contenu des ? lors de l'appel de la méthode `db.query`.  
-> Voici à quoi ça ressemble pour le login :
+> Voici une proposition afin de refactoriser le code. Créer une méthode afin de récupérer les infos d'un utilisateur à l'aide de son email.
 >
 > ```js
-> const query = `SELECT password FROM users WHERE email = ? LIMIT 1;`;
-> db.query(query, [email], async (err, results) => {
->   //... suite
+> async function getUserInfos(email) {
+>   const query = `SELECT password, username, role, id FROM users WHERE email = ? LIMIT 1;`;
+>   const results = await new Promise((resolve, reject) => {
+>     db.query(query, [email], (err, results) => {
+>       if (err) reject(err);
+>       else resolve(results);
+>     });
+>   });
+>
+>   return results[0];
+> }
+> ```
+>
+> Vous pouvez remarquez qu'ici nous avons employé une _promise_. En effet, cela nous facilite la gestion des erreurs de la requête, nous pouvons maintenant l'utiliser ainsi.
+>
+> ```js
+> const result = await getUserInfos(email).catch((err) => {
+>   res.status(500).json({ error: "Quelque chose s'est mal passé" });
+>   return;
 > });
 > ```
 
 ### 7 Implémenter l'utilisation d'un token jwt
 
-> À présent, nous allons restreindre l'accès à l'application afin de la rendre plus safe. Nous allons utiliser des JSON Web Tokens. Pour ceci, créez une nouvelle variable d'environnement, puis rendez-vous dans le AuthController, dans la partie login. La variable d'environnement s'appelle JWT_SECRET et contient une suite hexadécimale complexe. Pour en créer une facilement, vous pouvez visiter [ce site](https://jwtsecrets.com/).
+> À présent, nous allons restreindre l'accès à l'application afin de la rendre plus safe. Nous allons utiliser des JSON Web Tokens. Pour ceci, créez une nouvelle variable d'environnement, puis rendez-vous dans le AuthController, dans la partie login. La variable d'environnement s'appelle _JWT_SECRET_ et contient une suite hexadécimale complexe. Pour en créer une facilement, vous pouvez visiter [ce site](https://jwtsecrets.com/).  
+> Nous créons un token au moment où l'utilisateur se login, un utilisateur qui vient de se créer un compte ne sera donc pas authentifié. Le token est stocké dans un cookie afin d'empêcher l'utilisateur d'intéragir avec.
 >
-> ```js
-> //créer le token
-> const secret = process.env.JWT_SECRET;
-> const token = jwt.sign(
->   {
->     username: username,
->     email: email,
->   },
->   secret,
-> );
+> Il nous faut maintenant protéger les routes et pour ceci il nous faut de quoi tester et valider le token. Nous allons utiliser le middleware d'authentification (le fichier /middleware/auth.js). Nous y ajoutons et exportons la méhode `verifyToken`. Cette dernière prend le token des cookies et vérifie son contenu à l'aide de la variable d'environnemen.
 >
-> //message de connexion réussie
-> res.status(200).json({
->   message: "Connexion réussie",
->   token: token, //renvoi du token
-> });
-> ```
->
-> Il nous faut maintenant protéger les routes et pour ceci il nous faut de quoi tester et valider le token. Nous allons utiliser le middleware d'authentification (le fichier /middleware/auth.js). Nous y ajoutons et exportons la méhode `verifyToken`.
->
-> ```js
-> // =============================================================
-> // Middleware d'authentification
-> // =============================================================
-> const jwt = require("jsonwebtoken");
->
-> function verifyToken(req, res, next) {
->   const token = req.headers["authorization"].split(" ")[1]; // Récupère le token après "Bearer "
->
->   //si token manquant
->   if (!token) {
->     return res.status(403).json({ message: "Token manquant" });
->   }
->
->   try {
->     const decoded = jwt.verify(token, process.env.JWT_SECRET);
->     req.user = decoded;
->     next(); //tout est ok, on passe à la suite
->   } catch (err) {
->     //si token invalide
->     return res.status(401).json({ message: "Token invalide" });
->   }
-> }
->
-> module.exports = { verifyToken };
-> ```
->
-> Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode ainsi.
+> Il ne nous reste plus qu'à utiliser la méthode `verifyToken` pour toutes le routes qui en ont besoin. Il suffit d'ajouter le nom de la méthode de cette emanière.
 > `app.get("/profile", (_req, res) => ...` -> `app.get("/profile", verifyToken, (_req, res) => ...`
 
 ### 8 Ajouter les rôles administateur et utilisateur dans le jwt et protéger les routes d'administration
 
-> Puisque nous avons déjà placé le rôle utilisateur dans le token, il nous suffit de checker le role utilisateur lors de requêtes vers les routes admin (/admin et /api/admin). Nous créons donc une méthode dans auth.js (du middleware) qui permet de check le rôle que nous utilisions ensuite de la même manière que lea méthode de vérification du token.
+> Puisque nous avons déjà placé le rôle utilisateur dans le token, il nous suffit de checker le role utilisateur lors de requêtes vers les routes admin (/admin et /api/admin). Nous créons donc une méthode dans auth.js (du middleware) qui permet de check le rôle que nous utilisions ensuite de la même manière que la méthode de vérification du token.
 >
 > ```js
 > //permet de check le rôle
@@ -235,6 +166,8 @@
 > Nous allons donc ajouter un délais d'expiration au token : 15 minutes. `{ expiresIn: "15m" }` Après ces 15 minutes le token ne sera plus valide et l'utilisateur devra être revérifié.  
 > Enfin ça ce serait embêtant, devoir entrer username - mot de passe tous les quart d'heures. C'est pourquoi nous implémentons aussi un refresh token qui permet de générer un nouvel access token.  
 > Nous créons donc une nouvelle route afin de pouvoir créer un nouveau token `router.post("/refresh", verifyRefreshToken, controller.refreshToken);`. verifyRefreshToken est une nouvelle méthode qui vient du middleware et qui, comme son nom l'indique, va vérifier le token de rafraîchissement. controller.refreshToken est aussi une nouvelle méthode du controlleur d'authentification qui va créer et retourner un nouvel access token.
+>
+> Nous utilisons cette méthode dans le middleware, uniquement si ce dernier renvoie une erreur de type _TokenExpiredError_.
 
 ### 12 Audit des dépendances npm
 
@@ -274,7 +207,7 @@
 
 ### Générale
 
-> En conclusion, ce projet aura été globalement réussi. En effet, un total de 15 points aura été terminé.  
+> En conclusion, ce projet aura été globalement réussi. En effet, un total de 15 points aura été validé.  
 > Les tâches ci-dessous ont été réalisées :
 >
 > - Rendre le login fonctionnel
